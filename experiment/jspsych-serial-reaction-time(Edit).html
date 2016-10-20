@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="js/jquery.min.js"></script>
+  <script src="../jspsych.js"></script>
+  <script src="../plugins/jspsych-serial-reaction-time.js"></script>
+  <script src="../plugins/jspsych-text.js"></script>
+  <link rel="stylesheet" href="../css/jspsych.css"></link>
+</head>
+
+<script>
+  
+  var grids = [
+	  {
+		Gridtype: 
+		[[1,1,0,1,1], 
+		[1,1,0,1,1]],
+		target: [[0,0],[0,1],[0,3],[0,4],[1,0],[1,1],[1,3],[1,4]], 
+		choices: [['w','e', ,'i','o'],
+				  ['s','d', ,'k','l']],
+		boxes: 8	
+	  },
+	  { 
+	    Gridtype: 
+	   [[1,1,1,0,1,1,1],
+	   [1,1,1,0,1,1,1]],
+		target: [[0,0],[0,1],[0,2],[0,4],[0,5],[0,6],[1,0],[1,1], [1,2], [1,4], [1,5], [1,6]], 
+        choices: [['w','e','r', , 'u', 'i','o'],
+				  ['s','d','f', ,'j','k','l']],
+		boxes: 12	
+		
+	  },
+	  {
+	    Gridtype:
+	  [[1,1,1,1,0,1,1,1,1],
+	  [1,1,1,1,0,1,1,1,1]],	
+		target: [[0,0],[0,1],[0,2],[0,3],[0,5],[0,6],[0,7],[0,8],[1,0],[1,1], [1,2], [1,3], 				[1,5], [1,6],[1,7],[1,8]], 
+        choices: [['q','w','e','r', , 'y','u','i','o'],
+				  ['a','s','d','f', ,'h','j','k','l']],
+		boxes: 16
+	  },
+  ];
+  
+  var colorlist = [ 
+	  '#111111', 
+	  '#f3c300', 
+	  '#875692', 
+	  '#f38400', 
+	  '#a1caf1', 
+	  '#be0032', 
+	  '#c2b280', 
+	  '#848482', 
+	  '#008856', 
+	  '#e68fac', 
+	  '#0067a5',
+	  // fix this later...
+	  '#111111', 
+	  '#f3c300', 
+	  '#875692',
+	  '#e68fac', 
+	  '#0067a5',
+  ]
+  
+  var which_grid = jsPsych.randomization.sample(grids, 1, false)[0];
+  
+  var locations = jsPsych.randomization.shuffle(which_grid.target);
+  
+  var t_variables = [];
+  while(locations.length != 0){
+  	t_variables.push({
+  		target1: locations.pop(),
+		target2: locations.pop()
+  	});
+  }
+  
+  var which_colors = colorlist.slice(0,which_grid.boxes);
+  which_colors = jsPsych.randomization.shuffle(which_colors);
+  var color_grid = [];
+  for(var i=0; i<which_grid.Gridtype.length; i++){
+	  color_grid.push([]);
+	  for(var j=0; j<which_grid.Gridtype[i].length; j++){
+		  if(which_grid.Gridtype[i][j] == 1){
+			  color_grid[i].push(which_colors.pop());	
+		  } else {
+			  color_grid[i].push("");
+		  }
+	  }
+  }
+  
+  
+  var timeline = {
+    timeline: [
+      {
+        type: 'serial-reaction-time',
+        target: function(){ return jsPsych.timelineVariable('target1'); },
+		  grid_square_size: 80,
+		  grid: which_grid.Gridtype,
+		  choices: which_grid.choices,
+		  boxcolor: color_grid,
+      },
+      {
+        type: 'serial-reaction-time',
+        target: function(){ return jsPsych.timelineVariable('target2'); },
+		  grid_square_size: 80,
+		  grid: which_grid.Gridtype,
+		  choices: which_grid.choices,
+		  boxcolor: color_grid
+      }
+    ],
+    timeline_variables: t_variables,
+    randomize_order: true,
+    repetitions: 5
+  }
+
+  jsPsych.init({
+    timeline: [timeline],
+    on_finish: function() {
+      jsPsych.data.displayData();
+    },
+    default_iti: 0
+  });
+</script>
+
+</html>
