@@ -14,42 +14,6 @@
 <script>
 
 
-var consent_form = {
-	type: 'button-response',
-	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [10-60] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
-"<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p", 
-	choices: ['I agree.'],
-	is_html: true
-}
-
-var welcome_block = {
-	type: "text",
-	text: "Hi there! Welcome to the experiment. Press any key to begin."
-}
-
-var instructions_general = {
-	type: 'text',
-	text: "<p>This experiment involves playing a simple game. You’ll see a grid of squares where each square is mapped to a corresponding key on your keyboard. Your job is simple: press the correct key when the corresponding square changes colors.</p>" +
-	"<p>For instance, for the following grid: </p>" +
-	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,1], '#f00', [['3', '5','7','9']]) +
-	"<p>You would press the '5' key. </p> " + 
-	"<p>The goal of the game is to go as quickly as possible without making a mistake. Your score goes up when you respond correctly, and you earn more points if you respond faster. Your score goes down if you press the wrong key. At the end, we’ll tell you how your score compares to other people who completed the experiment. </p>" +
-	"<p>Press <b>spacebar</b> to begin when you're ready </p>", 
-	choices: ['spacebar'] 
-}
-var instructions_practice = {
-	type: 'text',
-	text: "<p><b>Practice:</b></p>" +
-	"<p>Here's a quick practice round to get used to the game. You will see four squares mapped to the following keys: </p>" +
-	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3', '5','7','9']]) +
-	"<p> <b>Note:</b> the above numbers will not appear in the squares during the practice round, </p>" +
-	"<p> so prepare accordingly by placing your fingers over the correct keys now.</p>" +
-	"<p>Press spacebar to begin when you are ready.</p>",
-	choices: ['spacebar'] 
-}
-
-
-
 var practice_grid = 
 
 	{
@@ -159,13 +123,52 @@ var practice_grid =
 	  }
   };
   
+  var consent_form = {
+  	type: 'button-response',
+  	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [10-60] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
+  "<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p", 
+  	choices: ['I agree.'],
+  	is_html: true
+  }
+
+  var welcome_block = {
+  	type: "text",
+  	text: "Hi there! Welcome to the experiment. Press any key to begin."
+  }
+  
+  var all_practice = [];
+  
+  var instructions_general = {
+  	type: 'text',
+  	text: "<p>This experiment involves playing a simple game. You’ll see a grid of squares where each square is mapped to a corresponding key on your keyboard. Your job is simple: press the correct key when the corresponding square changes colors.</p>" +
+  	"<p>For instance, for the following grid: </p>" +
+  	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,1], '#f00', [['3', '5','7','9']]) +
+  	"<p>You would press the '5' key. </p> " + 
+  	"<p>The goal of the game is to go as quickly as possible without making a mistake. Your score goes up when you respond correctly, and you earn more points if you respond faster. Your score goes down if you press the wrong key. At the end, we’ll tell you how your score compares to other people who completed the experiment. </p>" +
+  	"<p>Press <b>spacebar</b> to begin when you're ready </p>", 
+  	choices: ['spacebar'] 
+  }
+  all_practice.push(instructions_general);
+  
+  var instructions_practice = {
+  	type: 'text',
+  	text: "<p><b>Practice:</b></p>" +
+  	"<p>Here's a quick practice round to get used to the game. You will see four squares mapped to the following keys: </p>" +
+  	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3', '5','7','9']]) +
+  	"<p> <b>Note:</b> the above numbers will not appear in the squares during the practice round, </p>" +
+  	"<p> so prepare accordingly by placing your fingers over the correct keys now.</p>" +
+  	"<p>Press spacebar to begin when you are ready.</p>",
+  	choices: ['spacebar'] 
+  }
+  all_practice.push(instructions_practice);
+  
   
   var practice_timeline = {
 	  
 	  timeline: [
 		  {
 	  type: 'serial-reaction-time',
-	  target: function(){ return jsPsych.timelineVariable('target'); },
+	  target: jsPsych.timelineVariable('target'),
 	  grid_square_size: 80,
 	  grid: practice_grid.Gridtype,
 	  choices: practice_grid.choices,
@@ -183,28 +186,17 @@ var practice_grid =
 	repetitions: 3
   };
   
+  all_practice.push(practice_timeline);
+  
   var practice_debrief = { 
 	  type: 'button-response',
 	  choices: ['Start Game', 'Read Instructions Again'],
 	  is_html: true,
 	  stimulus: function()
 	  {
-		  var data = jsPsych.data.getData([{'block': 'practice'}]);
-		  var sum_rt = 0;
-		  var correct_trial_count = 0;
-		  var correct_rt_count = 0;
-		  for (var i = 0; i < data.length; i++) {
-			  if (data[i].correct == true) {
-     			 correct_trial_count++;
-      		   	if(data[i].rt > -1) {
-        		   sum_rt += data[i].rt;
-       				correct_rt_count++;
-      		  }
-    	  	}
-		}
-		
-	var rt = Math.floor(sum_rt / correct_rt_count)
-    var accuracy = Math.floor(correct_trial_count / data.length * 100)
+		  var data = jsPsych.data.get().filter({'block': 'practice'}).last(12);
+		  var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+		  var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
 
 	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
 	        "the trials.</p><p>Your average response time was <strong>" +
@@ -214,6 +206,15 @@ var practice_grid =
   
 }
 
+all_practice.push(practice_debrief);
+
+var repeat_practice = {
+	timeline: all_practice,
+	loop_function: function(data){
+		return data.last(1).values()[0].button_pressed == 1;
+	}
+}
+
 var instructions_test = {
 	type: 'text',
 	text:"<p>The next part of the experiment will be broken up into 4 sections. This time, the grid will look like this:</p>" +
@@ -221,8 +222,6 @@ var instructions_test = {
 	"<p>Each part will take approximately 10 minutes, and you'll get a break in between sessions.</p>" +
 	"<p>Press spacebar to begin when you are ready.</p>",
 	choices: ['spacebar'] 
-	
-	
 }
 
   var test_timeline_1 = {
@@ -230,20 +229,20 @@ var instructions_test = {
     timeline: [
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target1'); },
+        target: jsPsych.timelineVariable('target1'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 1': 'unpredictable'},
+		  data: {block: 1, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       },
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target2'); },
+        target: jsPsych.timelineVariable('target2'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 1': 'predictable'},
+		  data: {block: 1, sequence_type: 'predictable'},
 		  boxcolor: color_grid
       }
     ],
@@ -259,22 +258,9 @@ var instructions_test = {
 	  choices: ['spacebar'], 
   	  text: function()
   	  {
-  		  var data = jsPsych.data.getData([{'block 1': 'predictable'},{'block 1': 'unpredictable'}]);
-  		  var sum_rt = 0;
-  		  var correct_trial_count = 0;
-  		  var correct_rt_count = 0;
-  		  for (var i = 0; i < data.length; i++) {
-  			  if (data[i].correct == true) {
-       			 correct_trial_count++;
-        		   	if(data[i].rt > -1) {
-          		   sum_rt += data[i].rt;
-         				correct_rt_count++;
-        		  }
-      	  	}
-  		}
-		
-  	var rt = Math.floor(sum_rt / correct_rt_count)
-      var accuracy = Math.floor(correct_trial_count / data.length * 100)
+  		  var data = jsPsych.data.get().filter({block: 1});
+		  var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+		  var accuracy = data.filter({correct: true}).count() / data.count() * 100;
 
   	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
   	        "the trials.</p><p>Your average response time was <strong>" +
@@ -289,20 +275,20 @@ var instructions_test = {
     timeline: [
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target1'); },
+        target: jsPsych.timelineVariable('target1'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 2': 'unpredictable'},
+		  data: {block: 2, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       },
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target2'); },
+        target: jsPsych.timelineVariable('target2'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 2': 'predictable'},
+		  data: {block: 2, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       }
     ],
@@ -314,30 +300,17 @@ var instructions_test = {
   var test_2_debrief = { 
 	  type: 'text',
 	  choices: ['spacebar'],
-	  text: function()
-	  {
-		  var data = jsPsych.data.getData([{'block 2': 'unpredictable'},{'block 2': 'predictable'}]);
-		  var sum_rt = 0;
-		  var correct_trial_count = 0;
-		  var correct_rt_count = 0;
-		  for (var i = 0; i < data.length; i++) {
-			  if (data[i].correct == true) {
-     			 correct_trial_count++;
-      		   	if(data[i].rt > -1) {
-        		   sum_rt += data[i].rt;
-       				correct_rt_count++;
-      		  }
-    	  	}
-		}
-	
-	var rt = Math.floor(sum_rt / correct_rt_count)
-    var accuracy = Math.floor(correct_trial_count / data.length * 100)
+  	  text: function()
+  	  {
+  		  var data = jsPsych.data.get().filter({block: 2});
+		  var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+		  var accuracy = data.filter({correct: true}).count() / data.count() * 100;
 
-	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
-	        "the trials.</p><p>Your average response time was <strong>" +
-	        rt + " ms</strong>. </p>" +
-			"Press spacebar to continue.</p>"
-  }
+  	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
+  	        "the trials.</p><p>Your average response time was <strong>" +
+  	        rt + " ms</strong>. </p>" +
+  			"Press spacebar to continue.</p>"
+    }
 
 }
   
@@ -346,20 +319,20 @@ var instructions_test = {
     timeline: [
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target1'); },
+        target: jsPsych.timelineVariable('target1'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 3': 'unpredictable'},
+		  data: {block: 3, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       },
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target2'); },
+        target: jsPsych.timelineVariable('target2'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 3' : 'predictable'},
+		  data: {block: 3, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       }
     ],
@@ -371,30 +344,17 @@ var instructions_test = {
   var test_3_debrief = { 
 	  type: 'text',
 	  choices: ['spacebar'],
-	  text: function()
-	  {
-		  var data = jsPsych.data.getData([{'block 3': 'predictable'},{'block 3': 'unpredictable'}]);
-		  var sum_rt = 0;
-		  var correct_trial_count = 0;
-		  var correct_rt_count = 0;
-		  for (var i = 0; i < data.length; i++) {
-			  if (data[i].correct == true) {
-     			 correct_trial_count++;
-      		   	if(data[i].rt > -1) {
-        		   sum_rt += data[i].rt;
-       				correct_rt_count++;
-      		  }
-    	  	}
-		}
-	
-	var rt = Math.floor(sum_rt / correct_rt_count)
-    var accuracy = Math.floor(correct_trial_count / data.length * 100)
+  	  text: function()
+  	  {
+  		  var data = jsPsych.data.get().filter({block: 3});
+		  var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+		  var accuracy = data.filter({correct: true}).count() / data.count() * 100;
 
-	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
-	        "the trials.</p><p>Your average response time was <strong>" +
-	        rt + " ms</strong>. </p>" +
-			"Press spacebar to continue.</p>"
-  }
+  	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
+  	        "the trials.</p><p>Your average response time was <strong>" +
+  	        rt + " ms</strong>. </p>" +
+  			"Press spacebar to continue.</p>"
+    }
 
 }
   
@@ -403,20 +363,20 @@ var instructions_test = {
     timeline: [
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target1'); },
+        target: jsPsych.timelineVariable('target1'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 4' : 'unpredictable'},
+		  data: {block: 4, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       },
       {
         type: 'serial-reaction-time',
-        target: function(){ return jsPsych.timelineVariable('target2'); },
+        target: jsPsych.timelineVariable('target2'),
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {'block 4' : 'predictable'},
+		  data: {block: 4, sequence_type: 'unpredictable'},
 		  boxcolor: color_grid
       }
     ],
@@ -428,30 +388,17 @@ var instructions_test = {
   var test_4_debrief = { 
 	  type: 'text',
 	  choices: ['spacebar'],
-	  text: function()
-	  {
-		  var data = jsPsych.data.getData([{'block 4': 'predictable'},{'block 4': 'unpredictable'}]);
-		  var sum_rt = 0;
-		  var correct_trial_count = 0;
-		  var correct_rt_count = 0;
-		  for (var i = 0; i < data.length; i++) {
-			  if (data[i].correct == true) {
-     			 correct_trial_count++;
-      		   	if(data[i].rt > -1) {
-        		   sum_rt += data[i].rt;
-       				correct_rt_count++;
-      		  }
-    	  	}
-		}
-	
-	var rt = Math.floor(sum_rt / correct_rt_count)
-    var accuracy = Math.floor(correct_trial_count / data.length * 100)
+  	  text: function()
+  	  {
+  		  var data = jsPsych.data.get().filter({block: 4});
+		  var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+		  var accuracy = data.filter({correct: true}).count() / data.count() * 100;
 
-	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
-	        "the trials.</p><p>Your average response time was <strong>" +
-	        rt + " ms</strong>. </p>" +
-			"Press spacebar to continue.</p>"	  
-  }
+  	return "<p>You responded correctly on <strong> "+accuracy+"% </strong> of "+
+  	        "the trials.</p><p>Your average response time was <strong>" +
+  	        rt + " ms</strong>. </p>" +
+  			"Press spacebar to continue.</p>"
+    }
 
 }
 
@@ -472,10 +419,7 @@ var final_debrief = {
   
   timeline.push(consent_form);
   timeline.push(welcome_block);
-  timeline.push(instructions_general);
-  timeline.push(instructions_practice);
-  timeline.push(practice_timeline); 
-  timeline.push(practice_debrief);
+  timeline.push(repeat_practice);
   timeline.push(instructions_test);
   timeline.push(test_timeline_1);
   timeline.push(test_1_debrief);
