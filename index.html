@@ -12,6 +12,11 @@
 
 <script>
 
+var break_after_each_square = 250;
+
+var break_before_block = 500;
+
+var repetitions = 20;
 
 var practice_grid = {
   Gridtype: [[1,1,1,1]],
@@ -75,7 +80,7 @@ while(locations.length != 0){
 
 var consent_form = {
 	type: 'button-response',
-	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [10-60] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
+	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [20] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
 "<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p",
 	choices: ['I agree.'],
 	is_html: true
@@ -108,7 +113,8 @@ var instructions_practice = {
 	"<p><b>Note:</b> the above numbers will not appear in the squares during the practice round, " +
 	"so prepare accordingly by placing your fingers over the correct keys now.</p>" +
 	"<p>Press spacebar to begin when you are ready.</p>",
-	choices: ['spacebar']
+	choices: ['spacebar'],
+	timing_post_trial: break_before_block
 }
 all_practice.push(instructions_practice);
 
@@ -121,7 +127,8 @@ var practice_timeline = {
       grid: practice_grid.Gridtype,
       choices: practice_grid.choices,
       target_color: target_color,
-      data: {'block': 'practice'}
+      data: {'block': 'practice'},
+		timing_pre_target: break_after_each_square
     }
   ],
   timeline_variables: [
@@ -131,7 +138,7 @@ var practice_timeline = {
 	  {target: practice_grid.target[3]}
   ],
   randomize_order: true,
-	repetitions: 3
+	repetitions: 3,
 };
 all_practice.push(practice_timeline);
 
@@ -148,7 +155,7 @@ var practice_debrief = {
         "the trials.</p><p>Your average response time was <strong>" +
         rt + " ms</strong>. </p>" +
         "<p>If you understand the instructions and are ready to play, press the 'Start Game' button below. If you'd like to read the instructions again, press the 'Read Instructions Again' button.</p>"
-  }
+  },
 }
 all_practice.push(practice_debrief);
 
@@ -165,8 +172,10 @@ var instructions_test = {
 	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
 	"<p>Each part will take approximately 10 minutes, and you'll get a break in between sessions.</p>" +
 	"<p>Press spacebar to begin when you are ready.</p>",
-	choices: ['spacebar']
+	choices: ['spacebar'],
+	timing_post_trial: break_before_block
 }
+
 
 var test_timeline_1 = {
   timeline: [
@@ -191,7 +200,7 @@ var test_timeline_1 = {
   ],
   timeline_variables: t_variables,
   randomize_order: true,
-  repetitions: 1
+  repetitions: repetitions
 };
 
 var test_1_debrief = {
@@ -206,7 +215,8 @@ var test_1_debrief = {
   	        "the trials.</p><p>Your average response time was <strong>" +
   	        rt + " ms</strong>. </p>" +
   			   "<p>Press spacebar to continue.</p>"
-  }
+  },
+  timing_post_trial: break_before_block
 }
 
   var test_timeline_2 = {
@@ -233,7 +243,7 @@ var test_1_debrief = {
     ],
     timeline_variables: t_variables,
     randomize_order: true,
-    repetitions: 1
+    repetitions: repetitions
   };
 
   var test_2_debrief = {
@@ -249,7 +259,8 @@ var test_1_debrief = {
   	        "the trials.</p><p>Your average response time was <strong>" +
   	        rt + " ms</strong>. </p>" +
   			"Press spacebar to continue.</p>"
-    }
+    },
+	timing_post_trial: break_before_block
 
 }
 
@@ -277,7 +288,7 @@ var test_1_debrief = {
     ],
     timeline_variables: t_variables,
     randomize_order: true,
-    repetitions: 1
+    repetitions: repetitions
   };
 
   var test_3_debrief = {
@@ -293,7 +304,8 @@ var test_1_debrief = {
   	        "the trials.</p><p>Your average response time was <strong>" +
   	        rt + " ms</strong>. </p>" +
   			"Press spacebar to continue.</p>"
-    }
+    },
+	timing_post_trial: break_before_block
 
 }
 
@@ -321,7 +333,7 @@ var test_1_debrief = {
     ],
     timeline_variables: t_variables,
     randomize_order: true,
-    repetitions: 1
+    repetitions: repetitions
   }
 
   var test_4_debrief = {
@@ -337,14 +349,26 @@ var test_1_debrief = {
   	        "the trials.</p><p>Your average response time was <strong>" +
   	        rt + " ms</strong>. </p>" +
   			"Press spacebar to continue.</p>"
-    }
+    },
+	timing_post_trial: break_before_block
 
 }
 
 var questionnare = {
 	type: 'survey-text',
 	preamble: "<p>All done! We have a very short set of questions to ask you about the experiment, and then we'll tell you how you did.</p>",
-	questions: ["What do you think the purpose of the experiment was?", "Did you notice any repeating patterns in the sequence? If so, what were they?", "Any additional comments for the researchers?"],
+	questions: ["What do you think the purpose of the experiment was?"], 
+};
+
+var questionnare_2 = {
+	type: 'survey-text',
+	questions: ["During the experiment, did you notice any sequences or patterns between the squares? For instance, if you noticed that one of the keys below tended to come before another one in the grid, can you please describe which ones?" +
+jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices)]
+};
+
+var questionnare_3 = {
+	type: 'survey-text',
+	questions: ["Do you have any additional comments for the researchers?"]
 };
 
 var final_debrief = {
@@ -369,6 +393,8 @@ var final_debrief = {
   timeline.push(test_timeline_4);
   timeline.push(test_4_debrief);
   timeline.push(questionnare);
+  timeline.push(questionnare_2);
+  timeline.push(questionnare_3);
   timeline.push(final_debrief)
 
 
