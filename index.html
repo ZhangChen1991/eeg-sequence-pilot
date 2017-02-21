@@ -12,7 +12,7 @@
 
 <script>
 
-var break_after_each_square = 250;
+var break_after_each_square = 500;
 
 var break_before_block = 500;
 
@@ -64,7 +64,7 @@ var grids = [
   },
 ];
 
-var target_color = '#ff0000';
+var target_color = '#aaa';
 
 var which_grid = jsPsych.randomization.sample(grids, 1, false)[0];
 
@@ -128,7 +128,13 @@ var practice_timeline = {
       choices: practice_grid.choices,
       target_color: target_color,
       data: {'block': 'practice'},
-		timing_pre_target: break_after_each_square
+		  timing_pre_target: break_after_each_square,
+      play_audio_feedback: true,
+      show_response_feedback: true,
+      feedback_duration: 500,
+      audio_correct: 'audio/correct_250.mp3',
+      audio_incorrect: 'audio/wrong_250.mp3',
+      response_ends_trial: false
     }
   ],
   timeline_variables: [
@@ -365,7 +371,7 @@ var test_1_debrief = {
 var questionnare = {
 	type: 'survey-text',
 	preamble: "<p>All done! We have a very short set of questions to ask you about the experiment, and then we'll tell you how you did.</p>",
-	questions: ["What do you think the purpose of the experiment was?"], 
+	questions: ["What do you think the purpose of the experiment was?"],
 };
 
 var questionnare_2 = {
