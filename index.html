@@ -16,7 +16,7 @@ var break_after_each_square = 200;
 
 var break_before_block = 500;
 
-var repetitions = 20;
+var repetitions = 2;
 
 var practice_grid = {
   Gridtype: [[1,1,1,1]],
@@ -248,7 +248,7 @@ var test_1_debrief = {
   text: function(){
     var data = jsPsych.data.get().filter({block: 1});
     var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
-    var accuracy = data.filter({correct: true}).count() / data.count() * 100;
+    var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
 
     return "<p>Your average response time was <strong>" +
   	        rt + " ms</strong> and you responded correctly "+accuracy+"% of the time.</p>" +
@@ -306,11 +306,11 @@ var test_1_debrief = {
   	  {
         var data_1 = jsPsych.data.get().filter({block: 1});
         var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-        var accuracy_1 = data_1.filter({correct: true}).count() / data_1.count() * 100;
+        var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
 
   		  var data_2 = jsPsych.data.get().filter({block: 2});
 		  var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-		  var accuracy_2 = data_2.filter({correct: true}).count() / data_2.count() * 100;
+		  var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
 
       var msg = "<p>Your average response time for this round was <strong>" +
     	        rt_2 + " ms</strong> and you responded correctly "+accuracy_2+"% of the time.</p>";
@@ -322,6 +322,7 @@ var test_1_debrief = {
       }
 
       msg+= "<p>When you are ready to begin the next round, press spacebar to continue.</p>"
+      return msg;
     },
 	timing_post_trial: break_before_block
 
@@ -375,11 +376,11 @@ var test_1_debrief = {
     {
       var data_1 = jsPsych.data.get().filter({block: 2});
       var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-      var accuracy_1 = data_1.filter({correct: true}).count() / data_1.count() * 100;
+      var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
 
       var data_2 = jsPsych.data.get().filter({block: 3});
     var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-    var accuracy_2 = data_2.filter({correct: true}).count() / data_2.count() * 100;
+    var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
 
     var msg = "<p>Your average response time for this round was <strong>" +
             rt_2 + " ms</strong> and you responded correctly "+accuracy_2+"% of the time.</p>";
@@ -391,6 +392,7 @@ var test_1_debrief = {
     }
 
     msg+= "<p>When you are ready to begin the next round, press spacebar to continue.</p>"
+    return msg;
   },
 	timing_post_trial: break_before_block
 
@@ -444,11 +446,11 @@ var test_1_debrief = {
     {
       var data_1 = jsPsych.data.get().filter({block: 3});
       var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-      var accuracy_1 = data_1.filter({correct: true}).count() / data_1.count() * 100;
+      var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
 
       var data_2 = jsPsych.data.get().filter({block: 4});
     var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-    var accuracy_2 = data_2.filter({correct: true}).count() / data_2.count() * 100;
+    var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
 
     var msg = "<p>Your average response time for this round was <strong>" +
             rt_2 + " ms</strong> and you responded correctly "+accuracy_2+"% of the time.</p>";
@@ -460,6 +462,7 @@ var test_1_debrief = {
     }
 
     msg+= "<p>All done with this part of the experiment! Press spacebar to continue.</p>"
+    return msg;
   },
 	timing_post_trial: break_before_block
 
