@@ -7,6 +7,7 @@
   <script src="jsPsych/plugins/jspsych-text.js"></script>
   <script src="jsPsych/plugins/jspsych-button-response.js"></script>
   <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
+  <script src="jsPsych/plugins/jspsych-call-function.js"></script>
   <link rel="stylesheet" href="jsPsych/css/jspsych.css"></link>
 </head>
 
@@ -17,6 +18,8 @@ var break_after_each_square = 200;
 var break_before_block = 500;
 
 var repetitions = 2;
+
+var block_length = 10000;
 
 var practice_grid = {
   Gridtype: [[1,1,1,1]],
@@ -202,31 +205,40 @@ var instructions_test_part_2 = {
 	timing_post_trial: break_before_block
 }
 
+var block_start_time;
+var current_order = jsPsych.randomization.shuffle(t_variables);
+var order_index = 0;
+var which_target = 'target1';
+
+var timer_start = {
+  type: 'call-function',
+  func: function(){
+    block_start_time = Date.now();
+  }
+}
+
 var test_timeline_1 = {
   timeline: [
     {
       type: 'serial-reaction-time',
-      target: jsPsych.timelineVariable('target1'),
+      target: function() {
+        var to_show;
+        if(order_index >= current_order.length){
+          order_index = 0;
+          which_target = 'target1';
+          current_order = jsPsych.randomization.shuffle(t_variables);
+        }
+        var to_show = current_order[order_index][which_target];
+        which_target = which_target == 'target1' ? 'target2' : 'target1';
+        if(which_target == 'target1'){
+          order_index++;
+        }
+        return to_show;
+      },
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: {block: 1, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-    },
-    {
-      type: 'serial-reaction-time',
-      target: jsPsych.timelineVariable('target2'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 1, sequence_type: 'predictable'},
+		  data: function() { return {block: 1, sequence_type: 'unpredictable'} }, // TODO FIX THIS!!
 		  target_color: target_color,
 		  timing_pre_target: break_after_each_square,
       play_audio_feedback: true,
@@ -237,9 +249,13 @@ var test_timeline_1 = {
       response_ends_trial: false
     }
   ],
-  timeline_variables: t_variables,
-  randomize_order: true,
-  repetitions: repetitions
+  loop_function: function(){
+    if(Date.now() - block_start_time < block_length){
+      return true;
+    } else {
+      return false;
+    }
+  }
 };
 
 var test_1_debrief = {
@@ -498,11 +514,12 @@ var final_debrief = {
 
   var timeline = [];
 
-  timeline.push(consent_form);
+  /*timeline.push(consent_form);
   timeline.push(welcome_block);
   timeline.push(repeat_practice);
   timeline.push(instructions_test);
-  timeline.push(instructions_test_part_2);
+  timeline.push(instructions_test_part_2);*/
+  timeline.push(timer_start);
   timeline.push(test_timeline_1);
   timeline.push(test_1_debrief);
   timeline.push(test_timeline_2);
