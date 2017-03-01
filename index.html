@@ -9,7 +9,22 @@
   <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
   <script src="jsPsych/plugins/jspsych-call-function.js"></script>
   <link rel="stylesheet" href="jsPsych/css/jspsych.css"></link>
+  <style>
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+    #jspsych-target { width: 100%; height: 100%;}
+    #srt-score { position: absolute; width: 100%; border-bottom: 1px solid #ddd; background-color: #fafafa; margin:0; text-align: center;}
+    #srt-score progress { width: 500px; }
+    #srt-score .srt-top { padding: 10px 25px; display: inline-block; font-family: 'Open Sans', 'Arial'; font-size: 16px; color: #333;}
+  </style>
 </head>
+
+<body>
+  <div id="srt-score">
+    <span class="srt-top">Correct responses: <span id="srt-correct-count">0</span></span>
+    <span class="srt-top">Time: <progress max="100" value="20" id="srt-timer"></progress></span>
+  </div>
+  <div id="jspsych-target"></div>
+</body>
 
 <script>
 
@@ -209,11 +224,18 @@ var block_start_time;
 var current_order = jsPsych.randomization.shuffle(t_variables);
 var order_index = 0;
 var which_target = 'target1';
+var data_predictable = 'unpredictable';
+var timer_ticks;
+var count_correct = 0;
 
 var timer_start = {
   type: 'call-function',
   func: function(){
     block_start_time = Date.now();
+    timer_ticks = setInterval(function(){
+      var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
+      document.querySelector('#srt-timer').value = proportion_time_elapsed;
+    }, 100)
   }
 }
 
@@ -238,7 +260,11 @@ var test_timeline_1 = {
 		  grid_square_size: 80,
 		  grid: which_grid.Gridtype,
 		  choices: which_grid.choices,
-		  data: function() { return {block: 1, sequence_type: 'unpredictable'} }, // TODO FIX THIS!!
+		  data: function() {
+        var d = {block: 1, sequence_type: data_predictable},
+        data_predictable = data_predictable == 'unpredictable' ? 'predictable' : 'unpredictable';
+        return {block: 1, sequence_type: 'unpredictable'}
+      },
 		  target_color: target_color,
 		  timing_pre_target: break_after_each_square,
       play_audio_feedback: true,
@@ -246,7 +272,10 @@ var test_timeline_1 = {
       feedback_duration: 500,
       audio_correct: 'audio/correct_250.mp3',
       audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
+      response_ends_trial: false,
+      on_finish: function(data){
+        if(data.correct) { count_correct++; document.querySelector('#srt-correct-count').innerHTML = count_correct; }
+      }
     }
   ],
   loop_function: function(){
@@ -262,6 +291,9 @@ var test_1_debrief = {
   type: 'text',
   choices: ['spacebar'],
   text: function(){
+
+    clearInterval(timer_ticks);
+
     var data = jsPsych.data.get().filter({block: 1});
     var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
     var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
@@ -535,6 +567,7 @@ var final_debrief = {
 
 
   jsPsych.init({
+    display_element: 'jspsych-target',
     timeline: timeline,
     default_iti: 0
   });
