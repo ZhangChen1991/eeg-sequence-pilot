@@ -35,6 +35,7 @@ var break_before_block = 500;
 var repetitions = 2;
 
 var block_length = 10000;
+var n_blocks = 10;
 
 var practice_grid = {
   Gridtype: [[1,1,1,1]],
@@ -96,6 +97,8 @@ while(locations.length != 0){
   });
 }
 
+var timeline = [];
+
 var consent_form = {
 	type: 'button-response',
 	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [20] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
@@ -103,11 +106,13 @@ var consent_form = {
 	choices: ['I agree.'],
 	is_html: true
 }
+//timeline.push(consent_form);
 
 var welcome_block = {
 	type: "text",
 	text: "Hi there! Welcome to the experiment. Press any key to begin."
 }
+timeline.push(welcome_block);
 
 // INSERT VOLUME CHECK TRIAL.
 
@@ -198,6 +203,7 @@ var repeat_practice = {
 		return data.last(1).values()[0].button_pressed == 1;
 	}
 }
+//timeline.push(repeat_practice);
 
 var instructions_test = {
 	type: 'text',
@@ -219,302 +225,104 @@ var instructions_test_part_2 = {
 	choices: ['spacebar'],
 	timing_post_trial: break_before_block
 }
+timeline.push(instructions_test, instructions_test_part_2);
 
 var block_start_time;
-var current_order = jsPsych.randomization.shuffle(t_variables);
-var order_index = 0;
-var which_target = 'target1';
-var data_predictable = 'unpredictable';
+var current_order;
+var order_index;
+var which_target;
+var data_predictable;
 var timer_ticks;
-var count_correct = 0;
+var count_correct;
 
-var timer_start = {
-  type: 'call-function',
-  func: function(){
-    block_start_time = Date.now();
-    timer_ticks = setInterval(function(){
-      var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
-      document.querySelector('#srt-timer').value = proportion_time_elapsed;
-    }, 100)
-  }
-}
+for(var i=0; i<n_blocks; i++){
 
-var test_timeline_1 = {
-  timeline: [
-    {
-      type: 'serial-reaction-time',
-      target: function() {
-        var to_show;
-        if(order_index >= current_order.length){
-          order_index = 0;
-          which_target = 'target1';
-          current_order = jsPsych.randomization.shuffle(t_variables);
-        }
-        var to_show = current_order[order_index][which_target];
-        which_target = which_target == 'target1' ? 'target2' : 'target1';
-        if(which_target == 'target1'){
-          order_index++;
-        }
-        return to_show;
-      },
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: function() {
-        var d = {block: 1, sequence_type: data_predictable},
-        data_predictable = data_predictable == 'unpredictable' ? 'predictable' : 'unpredictable';
-        return {block: 1, sequence_type: 'unpredictable'}
-      },
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false,
-      on_finish: function(data){
-        if(data.correct) { count_correct++; document.querySelector('#srt-correct-count').innerHTML = count_correct; }
-      }
-    }
-  ],
-  loop_function: function(){
-    if(Date.now() - block_start_time < block_length){
-      return true;
-    } else {
-      return false;
+  var timer_start = {
+    type: 'call-function',
+    func: function(){
+      current_order = jsPsych.randomization.shuffle(t_variables);
+      order_index = 0;
+      which_target = 'target1';
+      data_predictable = 'unpredictable';
+      count_correct = 0;
+      block_start_time = Date.now();
+      timer_ticks = setInterval(function(){
+        var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
+        document.querySelector('#srt-timer').value = proportion_time_elapsed;
+      }, 100)
     }
   }
-};
 
-var test_1_debrief = {
-  type: 'text',
-  choices: ['spacebar'],
-  text: function(){
-
-    clearInterval(timer_ticks);
-
-    var data = jsPsych.data.get().filter({block: 1});
-    var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
-    var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
-
-    return "<p>Your average response time was <strong>" +
-  	        rt + " ms</strong> and you responded correctly <b>"+accuracy+"%</b> of the time.</p>" +
-            "<p>See if you can go faster and be more accurate in the next round!</p>"+
-  			   "<p>Press spacebar to continue.</p>"
-  },
-  timing_post_trial: break_before_block
-}
-
-  var test_timeline_2 = {
-
+  var test_timeline = {
+    data: {block: i},
     timeline: [
       {
         type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target1'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 2, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-      },
-      {
-        type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target2'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 2, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
+        target: function() {
+          var to_show;
+          if(order_index >= current_order.length){
+            order_index = 0;
+            which_target = 'target1';
+            current_order = jsPsych.randomization.shuffle(t_variables);
+          }
+          var to_show = current_order[order_index][which_target];
+          which_target = which_target == 'target1' ? 'target2' : 'target1';
+          if(which_target == 'target1'){
+            order_index++;
+          }
+          return to_show;
+        },
+  		  grid_square_size: 80,
+  		  grid: which_grid.Gridtype,
+  		  choices: which_grid.choices,
+  		  data: {block: i},
+  		  target_color: target_color,
+  		  timing_pre_target: break_after_each_square,
+        play_audio_feedback: true,
+        show_response_feedback: true,
+        feedback_duration: 500,
+        audio_correct: 'audio/correct_250.mp3',
+        audio_incorrect: 'audio/wrong_250.mp3',
+        response_ends_trial: false,
+        on_finish: function(data){
+          data.sequence_type = data_predictable;
+          data_predictable = data_predictable == 'unpredictable' ? 'predictable' : 'unpredictable';
+          if(data.correct) { count_correct++; document.querySelector('#srt-correct-count').innerHTML = count_correct; }
+        }
       }
     ],
-    timeline_variables: t_variables,
-    randomize_order: true,
-    repetitions: repetitions
-  };
-
-  var test_2_debrief = {
-	  type: 'text',
-	  choices: ['spacebar'],
-  	  text: function()
-  	  {
-        var data_1 = jsPsych.data.get().filter({block: 1});
-        var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-        var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
-
-  		  var data_2 = jsPsych.data.get().filter({block: 2});
-		  var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-		  var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
-
-      var msg = "<p>Your average response time for this round was <strong>" +
-    	        rt_2 + " ms</strong> and you responded correctly <b>"+accuracy_2+"%</b> of the time.</p>";
-
-      if(rt_2 < rt_1){
-        msg += "<p>You were <b>"+(rt_1-rt_2)+" </b> ms faster this round than last round. Nice job!</p>";
+    loop_function: function(){
+      if(Date.now() - block_start_time < block_length){
+        return true;
       } else {
-        msg += "<p>You were <b>"+(rt_2-rt_1)+"</b> ms slower this round than last round. See if you can go faster in the next round.</p>";
+        return false;
       }
-
-      msg+= "<p>When you are ready to begin the next round, press spacebar to continue.</p>"
-      return msg;
-    },
-	timing_post_trial: break_before_block
-
-}
-
-  var test_timeline_3 = {
-
-    timeline: [
-      {
-        type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target1'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 3, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-      },
-      {
-        type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target2'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 3, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-      }
-    ],
-    timeline_variables: t_variables,
-    randomize_order: true,
-    repetitions: repetitions
+    }
   };
 
-  var test_3_debrief = {
-	  type: 'text',
-	  choices: ['spacebar'],
-    text: function()
-    {
-      var data_1 = jsPsych.data.get().filter({block: 2});
-      var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-      var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
+  var test_debrief = {
+    type: 'text',
+    choices: ['spacebar'],
+    text: function(){
 
-      var data_2 = jsPsych.data.get().filter({block: 3});
-    var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-    var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
+      clearInterval(timer_ticks);
 
-    var msg = "<p>Your average response time for this round was <strong>" +
-            rt_2 + " ms</strong> and you responded correctly <b>"+accuracy_2+"%</b> of the time.</p>";
+      var which_block = jsPsych.data.get().last(1).values()[0].block;
 
-    if(rt_2 < rt_1){
-      msg += "<p>You were <b>"+(rt_1-rt_2)+" </b> ms faster this round than last round. Nice job!</p>";
-    } else {
-      msg += "<p>You were <b>"+(rt_1-rt_2)+" </b> ms slower this round than last round. See if you can go faster in the next round.</p>";
-    }
+      var data = jsPsych.data.get().filter({block: which_block});
+      var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
+      var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
 
-    msg+= "<p>When you are ready to begin the next round, press spacebar to continue.</p>"
-    return msg;
-  },
-	timing_post_trial: break_before_block
-
-}
-
-  var test_timeline_4 = {
-
-    timeline: [
-      {
-        type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target1'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 4, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-      },
-      {
-        type: 'serial-reaction-time',
-        target: jsPsych.timelineVariable('target2'),
-		  grid_square_size: 80,
-		  grid: which_grid.Gridtype,
-		  choices: which_grid.choices,
-		  data: {block: 4, sequence_type: 'unpredictable'},
-		  target_color: target_color,
-		  timing_pre_target: break_after_each_square,
-      play_audio_feedback: true,
-      show_response_feedback: true,
-      feedback_duration: 500,
-      audio_correct: 'audio/correct_250.mp3',
-      audio_incorrect: 'audio/wrong_250.mp3',
-      response_ends_trial: false
-      }
-    ],
-    timeline_variables: t_variables,
-    randomize_order: true,
-    repetitions: repetitions
+      return "<p>Your average response time was <strong>" +
+    	        rt + " ms</strong> and you responded correctly <b>"+accuracy+"%</b> of the time.</p>" +
+              "<p>See if you can go faster and be more accurate in the next round!</p>"+
+    			   "<p>Press spacebar to continue.</p>"
+    },
+    timing_post_trial: break_before_block
   }
-
-  var test_4_debrief = {
-	  type: 'text',
-	  choices: ['spacebar'],
-    text: function()
-    {
-      var data_1 = jsPsych.data.get().filter({block: 3});
-      var rt_1 = Math.floor(data_1.filter({correct: true}).select('rt').mean());
-      var accuracy_1 = Math.floor(data_1.filter({correct: true}).count() / data_1.count() * 100);
-
-      var data_2 = jsPsych.data.get().filter({block: 4});
-    var rt_2 = Math.floor(data_2.filter({correct: true}).select('rt').mean());
-    var accuracy_2 = Math.floor(data_2.filter({correct: true}).count() / data_2.count() * 100);
-
-    var msg = "<p>Your average response time for this round was <strong>" +
-            rt_2 + " ms</strong> and you responded correctly <b>"+accuracy_2+"%</b> of the time.</p>";
-
-    if(rt_2 < rt_1){
-      msg += "<p>You were <b>"+(rt_1-rt_2)+" </b> ms faster this round than last round. Nice job!</p>";
-    } else {
-      msg += "<p>You were <b>"+(rt_1-rt_2)+" </b> ms slower this round than last round.</p>";
-    }
-
-    msg+= "<p>All done with this part of the experiment! Press spacebar to continue.</p>"
-    return msg;
-  },
-	timing_post_trial: break_before_block
-
+  timeline.push(timer_start, test_timeline, test_debrief);
 }
+
 
 var questionnare = {
 	type: 'survey-text',
@@ -543,28 +351,6 @@ var final_debrief = {
   "your performance on the task.</p>" +
 	"<p>We really appreciate your participation and contribution to this research. If you have any questions, you can contact the researcher at jdeleeuw@vassar.edu.</p>"
 }
-
-  var timeline = [];
-
-  /*timeline.push(consent_form);
-  timeline.push(welcome_block);
-  timeline.push(repeat_practice);
-  timeline.push(instructions_test);
-  timeline.push(instructions_test_part_2);*/
-  timeline.push(timer_start);
-  timeline.push(test_timeline_1);
-  timeline.push(test_1_debrief);
-  timeline.push(test_timeline_2);
-  timeline.push(test_2_debrief);
-  timeline.push(test_timeline_3);
-  timeline.push(test_3_debrief);
-  timeline.push(test_timeline_4);
-  timeline.push(test_4_debrief);
-  timeline.push(questionnare);
-  timeline.push(questionnare_2);
-  timeline.push(questionnare_3);
-  timeline.push(final_debrief)
-
 
   jsPsych.init({
     display_element: 'jspsych-target',
