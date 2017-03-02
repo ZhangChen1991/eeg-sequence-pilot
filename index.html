@@ -34,8 +34,8 @@ var break_before_block = 500;
 
 var repetitions = 2;
 
-var block_length = 10000;
-var n_blocks = 10;
+var block_length = 20000;
+var n_blocks = 5;
 
 var practice_grid = {
   Gridtype: [[1,1,1,1]],
@@ -234,6 +234,7 @@ var which_target;
 var data_predictable;
 var timer_ticks;
 var count_correct;
+var high_score = 0;
 
 for(var i=0; i<n_blocks; i++){
 
@@ -245,6 +246,7 @@ for(var i=0; i<n_blocks; i++){
       which_target = 'target1';
       data_predictable = 'unpredictable';
       count_correct = 0;
+      document.querySelector('#srt-correct-count').innerHTML = count_correct;
       block_start_time = Date.now();
       timer_ticks = setInterval(function(){
         var proportion_time_elapsed = Math.floor((Date.now() - block_start_time) / block_length * 100);
@@ -310,13 +312,25 @@ for(var i=0; i<n_blocks; i++){
       var which_block = jsPsych.data.get().last(1).values()[0].block;
 
       var data = jsPsych.data.get().filter({block: which_block});
-      var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
-      var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
+      var count = data.filter({correct: true}).count();
 
-      return "<p>Your average response time was <strong>" +
-    	        rt + " ms</strong> and you responded correctly <b>"+accuracy+"%</b> of the time.</p>" +
-              "<p>See if you can go faster and be more accurate in the next round!</p>"+
-    			   "<p>Press spacebar to continue.</p>"
+      var msg = "<p>You got "+count+" blocks that round.</p>";
+
+      if(which_block === 0){
+        msg += "<p>That's a good start. See if you can get more next round.</p>";
+        high_score = count;
+      } else {
+        if(count >= high_score){
+          msg += "<p>That's your best score yet! Nice job.</p>"
+          high_score = count;
+        } else {
+          msg += "<p>That's "+(high_score-count)+ " away from your best round.</p>";
+        }
+        msg+="<p>Can you get a new high score this next round?</p>";
+      }
+      msg += "<p>Press spacebar to continue.</p>"
+
+      return msg;
     },
     timing_post_trial: break_before_block
   }
@@ -330,6 +344,7 @@ var questionnare = {
 	questions: ["What do you think the purpose of the experiment was?"],
 };
 
+
 var questionnare_2 = {
 	type: 'survey-text',
 	questions: ["During the experiment, did you notice any sequences or patterns between the squares? For instance, if you noticed that one of the keys below tended to come before another one in the grid, can you please describe which ones?" +
@@ -340,6 +355,7 @@ var questionnare_3 = {
 	type: 'survey-text',
 	questions: ["Do you have any additional comments for the researchers?"]
 };
+timeline.push(questionnare, questionnare_2, questionnare_3);
 
 var final_debrief = {
 	type: 'text',
@@ -351,12 +367,13 @@ var final_debrief = {
   "your performance on the task.</p>" +
 	"<p>We really appreciate your participation and contribution to this research. If you have any questions, you can contact the researcher at jdeleeuw@vassar.edu.</p>"
 }
+timeline.push(final_debrief);
 
-  jsPsych.init({
-    display_element: 'jspsych-target',
-    timeline: timeline,
-    default_iti: 0
-  });
+jsPsych.init({
+  display_element: 'jspsych-target',
+  timeline: timeline,
+  default_iti: 0
+});
 </script>
 
 </html>
