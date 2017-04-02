@@ -101,12 +101,12 @@ var timeline = [];
 
 var consent_form = {
 	type: 'button-response',
-	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately [20] minutes to complete. You will receive a payment of [$1.50-7.00] upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Mechanical Turk / Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
+	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately 20 minutes to complete. You will receive a payment of $2.00 upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
 "<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p",
 	choices: ['I agree.'],
 	is_html: true
 }
-//timeline.push(consent_form);
+timeline.push(consent_form);
 
 var welcome_block = {
 	type: "text",
@@ -114,7 +114,7 @@ var welcome_block = {
 }
 timeline.push(welcome_block);
 
-// INSERT VOLUME CHECK TRIAL.
+//INSERT VOLUME CHECK TRIAL.
 
 var all_practice = [];
 
@@ -122,7 +122,7 @@ var instructions_general = {
 	type: 'text',
 	text: "<p>This experiment involves playing a simple game. You’ll see a grid of squares where each square is mapped to a corresponding key on your keyboard. Your job is simple: press the correct key when the corresponding square changes colors.</p>" +
 	"<p>For instance, for the following grid: </p>" +
-	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,1], target_color, [['3', '5','7','9']]) +
+	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,1], target_color, [['3','5','7','9']]) +
 	"<p>You would press the '5' key.</p> " +
 	"<p>The goal of the game is to go as quickly as possible without making a mistake.</p>"+
 	"<p>Press spacebar to begin when you're ready.</p>",
@@ -133,8 +133,8 @@ all_practice.push(instructions_general);
 var instructions_practice = {
 	type: 'text',
 	text: "<p><b>Practice:</b></p>" +
-	"<p>Here's a quick practice round to get used to the game. You will see four squares mapped to the following keys: </p>" +
-	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3', '5','7','9']]) +
+	"<p>Here's a quick practice round to get you used to the game. You will see four squares like these mapped to the following keys: </p>" +
+	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3','5','7','9']]) +
 	"<p><b>Note:</b> the above numbers will not appear in the squares during the practice round, " +
 	"so prepare accordingly by placing your fingers over the correct keys now.</p>" +
 	"<p>Press spacebar to begin when you are ready.</p>",
@@ -156,7 +156,7 @@ var practice_timeline = {
 		  timing_pre_target: break_after_each_square,
       play_audio_feedback: true,
       show_response_feedback: true,
-      feedback_duration: 500,
+      feedback_duration: 300,
       audio_correct: 'audio/correct_250.mp3',
       audio_incorrect: 'audio/wrong_250.mp3',
       response_ends_trial: false
@@ -203,7 +203,7 @@ var repeat_practice = {
 		return data.last(1).values()[0].button_pressed == 1;
 	}
 }
-//timeline.push(repeat_practice);
+timeline.push(repeat_practice);
 
 var instructions_test = {
 	type: 'text',
@@ -211,7 +211,7 @@ var instructions_test = {
 	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
   "<p>This time, the grid will have more boxes.</p>"+
   "<p>Please take a moment to find the appropriate keys on the keyboard.</p>"+
-	"<p>Press spacebar when you have found the appropriate keys.</p>",
+	"<p>Press <b>spacebar</b> when you have found the appropriate keys.</p>",
 	choices: ['spacebar'],
 	timing_post_trial: 0
 }
@@ -219,9 +219,10 @@ var instructions_test_part_2 = {
 	type: 'text',
 	text:
 	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
-  "<p>This part of the experiment will be longer, and broken into four groups. Each group will take about XX minutes, but it depends on how fast you can go.</p>"+
-  "<p>After each group, you will see how quickly you were able to respond. This will only count correct responses.</p>"+
-	"<p>Take one last look at the keys, and then press spacebar to begin when you are ready.</p>",
+  "<p>The next part of the experiment will be longer, and broken into four sections. Each section will take 5 minutes to complete.</p>" +
+  "<p>A counter in the upper-left corner of your screen will keep track of your correct responses, and you will also be able to see how well you did after each section.</p>" +
+  "<p>The section will end after the blue bar completely fills up - so try to get as many correct responses as you can before it does!</p>" +
+	"<p>Take one last look at the keys, and then press <b>spacebar</b> to begin when you are ready.</p>",
 	choices: ['spacebar'],
 	timing_post_trial: break_before_block
 }
@@ -282,7 +283,7 @@ for(var i=0; i<n_blocks; i++){
   		  timing_pre_target: break_after_each_square,
         play_audio_feedback: true,
         show_response_feedback: true,
-        feedback_duration: 500,
+        feedback_duration: 300,
         audio_correct: 'audio/correct_250.mp3',
         audio_incorrect: 'audio/wrong_250.mp3',
         response_ends_trial: false,
@@ -314,21 +315,24 @@ for(var i=0; i<n_blocks; i++){
       var data = jsPsych.data.get().filter({block: which_block});
       var count = data.filter({correct: true}).count();
 
-      var msg = "<p>You got "+count+" blocks that round.</p>";
+      var msg = "<p>You got <b>"+count+" blocks</b> that round.</p>";
 
       if(which_block === 0){
-        msg += "<p>That's a good start. See if you can get more next round.</p>";
+        msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
+		"<p>That's a good start. See if you can get more next round.</p>";
         high_score = count;
       } else {
         if(count >= high_score){
-          msg += "<p>That's your best score yet! Nice job.</p>"
+          msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
+		  "<p>That's your best score yet!</p>"
           high_score = count;
         } else {
-          msg += "<p>That's "+(high_score-count)+ " away from your best round.</p>";
+          msg += jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.Gridtype, 80, [0,0],'', which_grid.choices) +
+		   "<p>That's <b>"+(high_score-count)+ "</b> away from your best round.</p>";
         }
-        msg+="<p>Can you get a new high score this next round?</p>";
+        msg+="<p>Nice job, but can you top your high score next round?</p>";
       }
-      msg += "<p>Press spacebar to continue.</p>"
+      msg += "<p>Take a break if you need to, and press <b>spacebar</b> to continue when you are ready.</p>"
 
       return msg;
     },
@@ -340,7 +344,7 @@ for(var i=0; i<n_blocks; i++){
 
 var questionnare = {
 	type: 'survey-text',
-	preamble: "<p>We have a very short set of questions to ask you about the experiment. This is the last part of the experiment.</p>",
+	preamble: "<p>The game is now over, but we have a short set of questions to ask you as the last part of the experiment.</p>",
 	questions: ["What do you think the purpose of the experiment was?"],
 };
 
