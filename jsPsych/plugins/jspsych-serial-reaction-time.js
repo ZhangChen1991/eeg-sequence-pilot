@@ -143,7 +143,9 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
 				var color = response.correct ? '#0f0' : '#f00';
         display_element.querySelector('#jspsych-serial-reaction-time-stimulus-cell-'+responseLoc[0]+'-'+responseLoc[1]).style.transition = "";
         display_element.querySelector('#jspsych-serial-reaction-time-stimulus-cell-'+responseLoc[0]+'-'+responseLoc[1]).style.backgroundColor = color;
-        jsPsych.pluginAPI.setTimeout(endTrial, trial.feedback_duration);
+        if(!trial.play_audio_feedback){
+          jsPsych.pluginAPI.setTimeout(endTrial, trial.feedback_duration);
+        }
 			}
 
       if (trial.play_audio_feedback){
