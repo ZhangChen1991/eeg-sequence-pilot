@@ -37,26 +37,30 @@ var n_blocks = 3;
 var target_color = '#aaa';
 
 // subject registration
-var id = jsPsych.data.urlVariable('prolific_pid');
-var session_id = jPsych.data.urlVariable('session_id');
+var id = jsPsych.data.getURLVariable('prolific_pid');
+var session_id = jsPsych.data.getURLVariable('session_id');
 var subject_id = jsPsych.randomization.randomID(20);
 var assigned_condition = null;
 jsPsych.data.addProperties({session_id: session_id, subject_id: subject_id});
 
 serverComm.register_subject(id,
   function(){
-    serverComm.assign_condition(subject_id,
+    serverComm.assign_condition(subject_id, 3,
       function(response){
-        assigned_condition = response.assigned_condition;
+        assigned_condition = response.assignedCondition;
         start_experiment();
       },
-      technical_failure
+      function(){
+        technical_failure();
+      }
     );
   },
   function(){
     document.querySelector('body').innerHTML = '<p>Our records indicate that you have already started this experiment. Due to the nature of the experiment, restarting is not permitted.</p><p>If you believe this message is in error, you can contact the researchers at jdeleeuw@vassar.edu. Our apologies for the trouble.</p>';
   },
-  technical_failure
+  function(){
+    technical_failure();
+  }
 );
 
 function technical_failure(){
@@ -177,7 +181,7 @@ function start_experiment(){
         grid: practice_grid.gridtype,
         choices: practice_grid.choices,
         target_color: target_color,
-        data: {'block': 'practice'},
+        data: {'sequence_type': 'practice'},
   		  timing_pre_target: break_after_each_square,
         play_audio_feedback: true,
         show_response_feedback: true,
@@ -422,7 +426,7 @@ function start_experiment(){
   var save = {
     type: 'call-function',
     func: function(){
-      serverComm.save_data(jsPsych.data.get());
+      serverComm.save_data(jsPsych.data.get().values());
     }
   }
   timeline.push(save);
@@ -435,7 +439,9 @@ function start_experiment(){
     "Some people saw sequences with lots of repeating patterns, and others saw sequences with only a few repeating patterns. This variation will allow us to "+
     "learn something about how the human mind uses different kinds of information to discover patterns. Keep this variation in difficulty in mind as you evaluate "+
     "your performance on the task.</p>" +
-  	"<p>We really appreciate your participation and contribution to this research. If you have any questions, you can contact the researcher at jdeleeuw@vassar.edu.</p>"
+  	"<p>We really appreciate your participation and contribution to this research. If you have any questions, you can contact the researcher at jdeleeuw@vassar.edu.</p>"+
+    "<p><a href='https://prolific.ac/submissions/complete?cc=5LAGRK1O'>Click here to complete the experiment and return to Prolific.</a></p>",
+    choices: jsPsych.NO_KEYS
   }
   timeline.push(final_debrief);
 
