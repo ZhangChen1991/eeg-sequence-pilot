@@ -32,8 +32,8 @@
 // experiment parameters
 var break_after_each_square = 200;
 var break_before_block = 500;
-var block_length = 2000; // milliseconds
-var n_blocks = 3;
+var block_length = 90000; // milliseconds
+var n_blocks = 8;
 var target_color = '#aaa';
 
 // subject registration
@@ -130,7 +130,7 @@ function start_experiment(){
 
   var consent_form = {
   	type: 'button-response',
-  	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately 20 minutes to complete. You will receive a payment of $2.00 upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on [Prolific]. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
+  	stimulus: "<p>This is a research project conducted at Vassar College. In this experiment, you will play a simple computer game in which you try to quickly press keys on your keyboard that correspond to particular locations or symbols on the screen. Our experiment investigates how different factors related to this game change how quickly people play. The experiment will take approximately 20 minutes to complete. You will receive a payment of £2.00 (about $2.50) upon completion of the experiment. The data we collect during the experiment are not linked to potentially identifying information, including your account information on Prolific. These data will solely be used for research purposes. You are free to stop the experiment by closing your browser window at any time. If you have any questions, you can contact Dr. Joshua de Leeuw at jdeleeuw@vassar.edu.</p>" +
     "<p>By clicking “I agree”, you affirm that you are at least 18 years of age, which is the minimum age to participate in this study, and that you understand the nature of your participation in this research. If you do not wish to participate, please close this window.</p",
   	choices: ['I agree.'],
   	is_html: true
@@ -139,7 +139,8 @@ function start_experiment(){
 
   var welcome_block = {
   	type: "text",
-  	text: "Hi there! Welcome to the experiment. Press any key to begin."
+  	text: "Hi there! Welcome to the experiment. There are sounds throughout this experiment, so take a moment to adjust your volume if needed. Press B to begin.",
+    choices: ['b']
   }
   timeline.push(welcome_block);
 
@@ -164,7 +165,7 @@ function start_experiment(){
   	text: "<p><b>Practice:</b></p>" +
   	"<p>Here's a quick practice round to get you used to the game. You will see four squares like these mapped to the following keys: </p>" +
   	jsPsych.plugins['serial-reaction-time'].stimulus([[1,1,1,1]], 80, [0,2], '', [['3','5','7','9']]) +
-  	"<p><b>Note:</b> the above numbers will not appear in the squares during the practice round, " +
+  	"<p>The above numbers <b>will not</b> appear in the squares during the practice round, " +
   	"so prepare accordingly by placing your fingers over the correct keys now.</p>" +
   	"<p>Press spacebar to begin when you are ready.</p>",
   	choices: ['spacebar'],
@@ -207,7 +208,7 @@ function start_experiment(){
     choices: ['Start Game', 'Read Instructions Again'],
     is_html: true,
     stimulus: function(){
-  	  var data = jsPsych.data.get().filter({'block': 'practice'}).last(12);
+  	  var data = jsPsych.data.get().filter({'sequence_type': 'practice'}).last(12);
   	  //var rt = Math.floor(data.filter({correct: true}).select('rt').mean());
   	  var accuracy = Math.floor(data.filter({correct: true}).count() / data.count() * 100);
 
@@ -257,8 +258,8 @@ function start_experiment(){
   	text:
   	jsPsych.plugins['serial-reaction-time'].stimulus(which_grid.gridtype, 80, [0,0],'', which_grid.choices) +
     "<p>The next part of the experiment will be broken up into "+n_blocks+" rounds. Each round will last "+(block_length/1000)+" seconds.</p>" +
-    "<p>A counter at the top of your screen will keep track of your correct responses, and you will also be able to see how well you did after each section.</p>" +
-    "<p>The section will end after the blue bar completely fills up - so try to get as many correct responses as you can before it does!</p>" +
+    "<p>The counter at the top of your screen will keep track of your correct responses, and you will also be able to see how well you did after each section.</p>" +
+    "<p>The section will end after the time bar completely fills up - so try to get as many correct responses as you can before it does!</p>" +
   	"<p>Take one last look at the keys, and then press <b>spacebar</b> to begin when you are ready.</p>",
   	choices: ['spacebar'],
   	timing_post_trial: break_before_block
