@@ -12,9 +12,6 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
 
   var plugin = {};
 
-  jsPsych.pluginAPI.registerPreload('serial-reaction-time', 'audio_correct', 'audio', function(t){ return t.is_html !== 'undefined' && t.play_audio_feedback });
-  jsPsych.pluginAPI.registerPreload('serial-reaction-time', 'audio_incorrect', 'audio', function(t){ return t.is_html !== 'undefined' && t.play_audio_feedback });
-
   plugin.trial = function(display_element, trial) {
 
     trial = jsPsych.pluginAPI.evaluateFunctionParameters(trial);
@@ -27,14 +24,12 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
     trial.timing_pre_target = (typeof trial.timing_pre_target === 'undefined') ? 0 : trial.timing_pre_target;
     trial.timing_max_duration = trial.timing_max_duration || -1; // if -1, then wait for response forever
     trial.show_response_feedback = (typeof trial.show_response_feedback === 'undefined') ? true : trial.show_response_feedback;
-    trial.play_audio_feedback = (typeof trial.play_audio_feedback === 'undefined') ? false : trial.play_audio_feedback;
-    // must pass in trial.audio_correct, trial.audio_incorrect
     trial.feedback_duration = (typeof trial.feedback_duration === 'undefined') ? 50 : trial.feedback_duration;
     trial.fade_duration = (typeof trial.fade_duration === 'undefined') ? -1 : trial.fade_duration;
     trial.prompt = (typeof trial.prompt === 'undefined') ? "" : trial.prompt;
 
     // create a flattened version of the choices array
-    var flat_choices = flatten(trial.choices);
+    var flat_choices = jsPsych.utils.flatten(trial.choices);
     while(flat_choices.indexOf('') > -1){
       flat_choices.splice(flat_choices.indexOf(''),1);
     }
@@ -57,7 +52,6 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
     }
 
 		var keyboardListener = {};
-    var audio;
 
 		function showTarget(){
       if(trial.fade_duration == -1){
@@ -87,13 +81,6 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
       // kill keyboard listeners
       if (typeof keyboardListener !== 'undefined') {
         jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
-      }
-
-      // stop the audio file if it is playing
-      if(jsPsych.pluginAPI.audioContext() !== null ){
-        audio.stop();
-      } else {
-        audio.pause();
       }
 
       // gather the data to store for the trial
@@ -143,27 +130,7 @@ jsPsych.plugins["serial-reaction-time"] = (function() {
 				var color = response.correct ? '#0f0' : '#f00';
         display_element.querySelector('#jspsych-serial-reaction-time-stimulus-cell-'+responseLoc[0]+'-'+responseLoc[1]).style.transition = "";
         display_element.querySelector('#jspsych-serial-reaction-time-stimulus-cell-'+responseLoc[0]+'-'+responseLoc[1]).style.backgroundColor = color;
-        if(!trial.play_audio_feedback){
-          jsPsych.pluginAPI.setTimeout(endTrial, trial.feedback_duration);
-        }
 			}
-
-      if (trial.play_audio_feedback){
-        var audio_to_play = response.correct ? trial.audio_correct : trial.audio_incorrect;
-        var context = jsPsych.pluginAPI.audioContext();
-        if(context !== null){
-          audio = context.createBufferSource();
-          audio.buffer = jsPsych.pluginAPI.getAudioBuffer(audio_to_play);
-          audio.connect(context.destination);
-          audio.onended = endTrial;
-          audio.start();
-        } else {
-          audio = jsPsych.pluginAPI.getAudioBuffer(audio_to_play);
-          audio.currentTime = 0;
-          audio.play();
-          audio.addEventListener('end', endTrial);
-        }
-      }
 
       if (trial.response_ends_trial) {
         endTrial();
